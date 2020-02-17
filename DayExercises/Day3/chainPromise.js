@@ -34,3 +34,31 @@ const getPlanetforFirstSpeciesInFirstMovieForPerson = id =>
         .catch(err => console.log("Error: ", err))
         .finally(() => console.log("Done 4"));
 };
+const getPlanetforFirstSpeciesInFirstMovieForPersonAsync = async id =>
+{
+    try
+    {
+        const data = await fetch("https://swapi.co/api/people/" + id).then(res => res.json());
+        console.log("Name: ", data.name);
+        const firstFilm = await fetch(data.films[0]).then(res => res.json());
+        console.log("First film: ", firstFilm.title);
+        const species = await fetch(data.species[0]).then(res => res.json());
+        console.log("Species: ", species.name);
+        const homeworld = await fetch(data.homeworld).then(res => res.json());
+        console.log("Homeworld: ", homeworld.name);
+    }
+
+    catch (error)
+    {
+        console.log('We done fucked up, son: ${error}');
+    }
+    finally
+    {
+        console.log("Roll out, boys. We done here");
+    }
+
+}
+
+
+getPlanetforFirstSpeciesInFirstMovieForPerson(3);
+// getPlanetforFirstSpeciesInFirstMovieForPersonAsync(3);
