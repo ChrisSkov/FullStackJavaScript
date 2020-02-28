@@ -1,32 +1,38 @@
+//Interfaces 2
 
-
-interface IFunc 
+// task a) 
+//an interface that describes a function
+interface myFunc
 {
-    [index: number]: Array<string>;
+    (firstName: string, lastName: string, alias: string): void;
 }
-const bestActorOfAllTime =
+//a function that return the array(and prints it)
+function printArray(firstName: string, lastName: string, alias: string)
 {
-   
-    firstName: "Nicolas Cage", lastWords: "My snakeskin jacket, baby", causeOfDeath: "Being too great at acting"
-};
-
-function myFunc(func: IFunc)
-{
-
-    console.log(func);
+    let array: string[] = [firstName, lastName, alias];
+    console.log(array);
+    return array;
 }
 
-myFunc(bestActorOfAllTime);
+let satan: myFunc = printArray;
+satan("Nic", "Cage", "One True God");
 
-function myOtherFunc(func: IFunc)
+//returns an array but in upper case
+function printArrayUP(firstName: string, lastName: string, alias: string)
 {
+    let array: string[] = [firstName.toUpperCase(), lastName.toUpperCase(), alias.toUpperCase()];
+    console.log(array);
+    return array;
 
-    for (let i in func)
-    {
-        // i.toUpperCase;
-
-        console.log(i);
-    }
 }
 
-myOtherFunc(bestActorOfAllTime);
+
+let satan2: myFunc = printArrayUP;
+satan2("Nic", "Cage", "One True God");
+
+//i have verified that shit don't work, yo
+let f2 = function logger(f1: myFunc){
+    //Simulate that we get data from somewhere and uses the provided function
+    let [ a, b, c] = ["A", "B", "C"];
+    console.log(f1(a,b,c));
+}
