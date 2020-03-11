@@ -1,16 +1,22 @@
 require('dotenv').config();
 import express from "express";
 import path from "path";
+import simpleLog from "./middleware/simpleLogger"
+
+
 
 const app = express();
 
-app.use(express.static(path.join(process.cwd(),"public")))
+app.use(express.static(path.join(process.cwd(), "public")))
 app.use(express.json())
+app.use(simpleLog);
+
 let userAPIRouter = require('./routes/userApi');
 
-app.use("/api/users",userAPIRouter);
+app.use("/api/users", userAPIRouter);
 
-app.get("/api/dummy", (req, res) => {
+app.get("/api/dummy", (req, res) =>
+{
   res.json({ msg: "Hello" })
 })
 

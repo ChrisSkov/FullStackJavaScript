@@ -34,7 +34,7 @@ describe("Testing async behaviour", function () {
     expect(foo).to.equal(true);
   });
 });
-
+//this is how to do it
 describe("DelayMsg behaviour, tested with async/await", function () {
   it("Should eventually provide HELLO", async function () {
     const msg = await delayMsg("hello", 100);
@@ -49,6 +49,7 @@ describe("DelayMsg behaviour, tested with async/await", function () {
   })
 })
 
+//remember what we had above is the as the as this
 describe("DelayMsg behaviour, tested WITHOUT async/await", function () {
   it("Should eventually provide HELLO", function (done) {
     delayMsg("hello", 100)
