@@ -1,6 +1,6 @@
 import express from "express";
 import userFacade from "../facades/user";
-
+import authMiddleWare from "../middleware/basic-Auth";
 const router = express.Router();
 
 router.post('/', async function (req, res, next) {
@@ -14,6 +14,7 @@ router.post('/', async function (req, res, next) {
   }
 })
 
+router.use(authMiddleWare)
 router.get('/:userName', async function (req, res, next) {
   try {
   const user_Name = req.params.userName;

@@ -8,6 +8,8 @@ import simpleLog from "./middleware/simpleLogger"
 const app = express();
 
 app.use(express.static(path.join(process.cwd(), "public")))
+
+
 app.use(express.json())
 app.use(simpleLog);
 
