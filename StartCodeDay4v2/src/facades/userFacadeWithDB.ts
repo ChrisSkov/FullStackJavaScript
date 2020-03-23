@@ -3,68 +3,99 @@ require('dotenv').config({ path: path.join(process.cwd(), '.env') })
 import IGameUser from '../interfaces/GameUser';
 import { bryptAsync, bryptCheckAsync } from "../utils/bcrypt-async-helper"
 import * as mongo from "mongodb"
-import setup from "../../config/setupDB"
+import setup from "../config/setupDB"
 import { ApiError } from "../errors/apiError"
 
 let userCollection: mongo.Collection;
 
-export default class UserFacade {
+export default class UserFacade
+{
 
-    static async setDatabase(client: mongo.MongoClient) {
+    static async setDatabase(client: mongo.MongoClient)
+    {
         const dbName = process.env.DB_NAME;
-        if(!dbName){
+        if (!dbName)
+        {
             throw new Error("Database name not provided")
         }
-        try {
-            if(!client.isConnected()){
-              await client.connect();
+        try
+        {
+            if (!client.isConnected())
+            {
+                await client.connect();
             }
-            userCollection =  client.db(dbName).collection("users");
+            userCollection = client.db(dbName).collection("users");
             return client.db(dbName);
 
-        } catch (err) {
+        } catch (err)
+        {
             console.error("Could not create connect", err)
         }
     }
 
-    static async addUser(user: IGameUser): Promise<string> {
+    static async addUser(user: IGameUser): Promise<string>
+    {
         const hash = await bryptAsync(user.password);
         let newUser = { ...user, password: hash }
         const result = await userCollection.insertOne(newUser);
         return "User was added";
     }
-    static async deleteUser(userName: string): Promise<string> {
-        throw new Error("Not Implemented")
+    static async deleteUser(userName: string): Promise<string>
+    {
+        const status = await userCollection.findOneAndDelete({ userName })
+        if (status.value)
+        {
+            return "User was deleted";
+        }
+        throw new ApiError("User was not deleted", 400);
     }
     //static async getAllUsers(): Promise<Array<IGameUser>> {
-    static async getAllUsers(): Promise<Array<any>> {
-        throw new Error("Not Implemented")
+    static async getAllUsers(): Promise<Array<any>>
+    {
+        const all = await userCollection.find({},
+            { projection: { name: 1, username: 1, _id: 0 } } // 1 signalerer vi gerne vil have det med 0 signalere vi IKKE vil have det med
+        )
+        return all.toArray();
     }
 
-    static async getUser(userName: string,proj?:object): Promise<any> {
-        throw new Error("Not Implemented")
+    static async getUser(userName: string, proj?: object): Promise<any>
+    {
+        const user = await userCollection.findOne(
+            { userName },
+            {
+                projection: proj
+            }
+        )
+        if (!user)
+        {
+            throw new ApiError("User not found", 404);
+        }
+        return user;
     }
 
-    static async checkUser(userName: string, password: string): Promise<boolean> {
+    static async checkUser(userName: string, password: string): Promise<boolean>
+    {
         let userPassword = "";
-        try{
-          const user = await UserFacade.getUser(userName);
-          userPassword = user.password;
-        } catch(err){}
-        
+        try
+        {
+            const user = await UserFacade.getUser(userName);
+            userPassword = user.password;
+        } catch (err) { }
+
         const status = await bryptCheckAsync(password, userPassword);
         return status
     }
 }
 
-async function test() {
+async function test()
+{
     console.log("testing")
     const client = await setup();
     await UserFacade.setDatabase(client)
     await userCollection.deleteMany({})
     await UserFacade.addUser({ name: "kim", userName: "kim@b.dk", password: "secret", role: "user" })
     await UserFacade.addUser({ name: "ole", userName: "ole@b.dk", password: "secret", role: "user" })
-    
+
     // const all = await UserFacade.getAllUsers();
     // console.log(all)
 
@@ -100,6 +131,6 @@ async function test() {
     //     console.log("hould get here with failded 2", err)
     // }
 
-    
+
 }
 test();
