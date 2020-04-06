@@ -3,27 +3,29 @@ require('dotenv').config({ path: path.join(process.cwd(), '.env') })
 import * as mongo from "mongodb";
 import { bryptAsync } from "./bcrypt-async-helper"
 const MongoClient = mongo.MongoClient;
-import {positionCreator} from "./geoUtils"
-import {USER_COLLECTION_NAME,POSITION_COLLECTION_NAME,POST_COLLECTION_NAME} from "../config/collectionNames"
+import { positionCreator } from "./geoUtils"
+import { USER_COLLECTION_NAME, POSITION_COLLECTION_NAME, POST_COLLECTION_NAME } from "../config/collectionNames"
 
 const uri = process.env.CONNECTION || ""
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-(async function makeTestData() {
-  try {
+(async function makeTestData()
+{
+  try
+  {
     await client.connect();
     const db = client.db(process.env.DB_NAME)
     const usersCollection = db.collection(USER_COLLECTION_NAME)
     await usersCollection.deleteMany({})
-    await usersCollection.createIndex( {userName :1},{unique:true} )
+    await usersCollection.createIndex({ userName: 1 }, { unique: true })
     const secretHashed = await bryptAsync("secret");
     const team1 = { name: "Team1", userName: "t1", password: secretHashed, role: "team" }
     const team2 = { name: "Team2", userName: "t2", password: secretHashed, role: "team" }
     const team3 = { name: "Team3", userName: "t3", password: secretHashed, role: "team" }
-    
-    const status = await usersCollection.insertMany([team1,team2,team3])
-  
+
+    const status = await usersCollection.insertMany([team1, team2, team3])
+
     const positionsCollection = db.collection(POSITION_COLLECTION_NAME)
     await positionsCollection.deleteMany({})
     await positionsCollection.createIndex({ "lastUpdated": 1 }, { expireAfterSeconds: 30 })
@@ -35,8 +37,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
       positionCreator(12.51, 55.77, "xxx", "yyy", false),
     ]
     const locations = await positionsCollection.insertMany(positions)
-    POST_COLLECTION_NAME
-    const postCollection = db.collection()
+    const postCollection = db.collection(POST_COLLECTION_NAME)
     await postCollection.deleteMany({})
     const posts = await postCollection.insertMany([{
       _id: "Post1",
@@ -45,8 +46,9 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
       location: {
         type: "Point",
         coordinates: [12.49, 55.77]
-      } },
-      {
+      }
+    },
+    {
       _id: "Post2",
       task: { text: "4-4", isUrl: false },
       taskSolution: "0",
@@ -61,9 +63,11 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
     console.log(`Inserted ${locations.insertedCount} test Locationa`)
     console.log(`NEVER, NEVER, NEVER run this on a production database`)
 
-  } catch (err) {
+  } catch (err)
+  {
     console.error(err)
-  } finally {
+  } finally
+  {
     client.close();
   }
 })()

@@ -1,5 +1,6 @@
 import * as mongo from "mongodb"
 const MongoClient = mongo.MongoClient;
+import "mocha";
 import setup from "../src/config/setupDB"
 //import UserFacade from '../src/facades/userFacadeWithDB';
 import GameFacade from '../src/facades/gameFacade';
@@ -83,7 +84,7 @@ describe("Verify the GameFacade", () => {
   })
 
   describe("Verify nearbyPlayers", () => {
-    xit("Should not find Team2 (wrong credentials)", async () => {
+    it("Should not find Team2 (wrong credentials)", async () => {
       try {
         const playersFound = await GameFacade.nearbyPlayers("t1", "xxxxx", 12.48, 55.77, DISTANCE_TO_SEARCH)
         throw new Error("Should NEVER get here")
