@@ -52,22 +52,15 @@ export default class GameFacade
     try
     {
       //Step-1. Find the user, and if found continue
-
       user = await UserFacade.getUser(userName);
-      //      const loggedIn = await UserFacade.checkUser(userName, password);
+         const loggedIn = await UserFacade.checkUser(userName, password);
     } catch (err)
     {
       throw new ApiError("wrong username or password", 403)
     }
 
     try
-    {
-      //If loggedin update (or create if this is the first login) his position
-      //Todo
-      if (!(await UserFacade.checkUser(userName, password)))
-      {
-        throw new ApiError("Incorrect credentials", 403);
-      }
+    {      
       const point = { type: "Point", coordinates: [longitude, latitude] }
       const date = new Date();
       /*It's important you know what to do her. Remember a document for this user does
