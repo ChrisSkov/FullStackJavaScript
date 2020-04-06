@@ -35,19 +35,9 @@ export default class GameFacade
         await client.connect();
       }
       positionCollection = client.db(dbName).collection(POSITION_COLLECTION_NAME);
-      //TODO
-      //1) Create expiresAfterSeconds index on lastUpdated
-      await positionCollection.createIndex({ "lastUpdated": 1 }, { expireAfterSeconds: 30 })
-      //2) Create 2dsphere index on location
-      await positionCollection.createIndex({ location: "2dsphere" })
-
-
-
-
-      //TODO uncomment if you plan to do this part of the exercise
-      //postCollection = client.db(dbName).collection(POST_COLLECTION_NAME);
-      //TODO If you do this part, create 2dsphere index on location
-      //await postCollection.createIndex({ location: "2dsphere" })
+      await positionCollection.createIndex({ location: "2dsphere" });
+      postCollection = client.db(dbName).collection(POST_COLLECTION_NAME);
+      await postCollection.createIndex({ location: "2dsphere" });
       return client.db(dbName);
 
     } catch (err)
@@ -64,7 +54,7 @@ export default class GameFacade
       //Step-1. Find the user, and if found continue
 
       user = await UserFacade.getUser(userName);
-      const loggedIn = await UserFacade.checkUser(userName, password);
+      //      const loggedIn = await UserFacade.checkUser(userName, password);
     } catch (err)
     {
       throw new ApiError("wrong username or password", 403)
@@ -73,13 +63,17 @@ export default class GameFacade
     try
     {
       //If loggedin update (or create if this is the first login) his position
+      //Todo
+      if (!(await UserFacade.checkUser(userName, password)))
+      {
+        throw new ApiError("Incorrect credentials", 403);
+      }
       const point = { type: "Point", coordinates: [longitude, latitude] }
       const date = new Date();
-      //Todo
       /*It's important you know what to do her. Remember a document for this user does
-        not neccesarily exist. If not, you must create it, in not found (see what you can do wit upsert)
-        Also remember to set a new timeStamp (use the date create above), since this document should only live for a
-        short time */
+      not neccesarily exist. If not, you must create it, in not found (see what you can do wit upsert)
+      Also remember to set a new timeStamp (use the date create above), since this document should only live for a
+      short time */
       const found = await positionCollection.findOneAndUpdate(
         { userName },
         {
@@ -90,7 +84,7 @@ export default class GameFacade
             location: point
           }
         }, // Add what needs to be added here, remember the document might NOT exist yet
-        { upsert: true, returnOriginal: false })
+        { upsert: true, returnOriginal: false });
 
 
 
@@ -104,7 +98,7 @@ export default class GameFacade
           name: player.name,
           lat: latitude,
           lon: longitude
-        }
+        };
       });
       return formatted;
     } catch (err)
