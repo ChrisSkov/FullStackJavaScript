@@ -53,14 +53,14 @@ export default class GameFacade
     {
       //Step-1. Find the user, and if found continue
       user = await UserFacade.getUser(userName);
-         const loggedIn = await UserFacade.checkUser(userName, password);
+      const loggedIn = await UserFacade.checkUser(userName, password);
     } catch (err)
     {
       throw new ApiError("wrong username or password", 403)
     }
 
     try
-    {      
+    {
       const point = { type: "Point", coordinates: [longitude, latitude] }
       const date = new Date();
       /*It's important you know what to do her. Remember a document for this user does
