@@ -59,7 +59,7 @@ describe("Verify the GameFacade", () =>
 
     await positionCollection.deleteMany({})
 
- 
+
     const positions =
       [
         positionCreator(12.48, 55.77, team1.userName, team1.name, true),
@@ -112,22 +112,49 @@ describe("Verify the GameFacade", () =>
 
   describe("Verify nearbyPlayers", () =>
   {
-    xit("Should find Team2 and Team2", async () =>
+    it("Should find Team2 and Team2", async () =>
     {
-      //TODO
+      try
+      {
+        const playersFound1 = await GameFacade.nearbyPlayers("t1", "secret1", 12.48, 55.77, DISTANCE_TO_SEARCH)
+        const playersFound2 = await GameFacade.nearbyPlayers("t3", "secret2", 12.48, 55.77, DISTANCE_TO_SEARCH)
+        expect(playersFound2).to.be.equal("Team2");
+        expect(playersFound1).to.be.equal("Team2");
+      } catch (err)
+      {
+        expect(err.errorCode).to.be.equal(403);
+      }
     })
   })
 
   describe("Verify getPostIfReached", () =>
   {
-    xit("Should find the post since it was reached", async () =>
+    it("Should find the post since it was reached", async () =>
     {
-      //TODO
+      try
+      {
+        const postToReach = { postId: "Post1", task: "1+1", isUrl: false };
+        const res = await GameFacade.getPostIfReached("Post1", 12.59, 55.77);
+        expect(res).to.be.equal(postToReach)
+      }
+      catch (err)
+      {
+        expect(err.errorCode).to.be.equal(400)
+      }
     })
 
-    xit("Should NOT find the post since it was NOT reached", async () =>
+    it("Should NOT find the post since it was NOT reached", async () =>
     {
-      //TODO
+      try
+      {
+        const postToReach = { postId: "Post1", task: "1+1", isUrl: false };
+        const res = await GameFacade.getPostIfReached("Post1", 77.59, 55.77);
+        expect(res).to.be.equal(postToReach)
+      }
+      catch (err)
+      {
+        expect(err.errorCode).to.be.equal(400)
+      }
     })
   })
 })
