@@ -137,7 +137,6 @@ export default class GameFacade
               $geometry: point,
               $maxDistance: distance
             }
-            // Todo: Complete this
           }
         });
       if (post === null)

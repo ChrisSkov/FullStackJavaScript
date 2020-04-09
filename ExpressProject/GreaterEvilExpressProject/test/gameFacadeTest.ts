@@ -118,8 +118,8 @@ describe("Verify the GameFacade", () =>
       {
         const playersFound1 = await GameFacade.nearbyPlayers("t1", "secret1", 12.48, 55.77, DISTANCE_TO_SEARCH)
         const playersFound2 = await GameFacade.nearbyPlayers("t3", "secret2", 12.48, 55.77, DISTANCE_TO_SEARCH)
-        expect(playersFound2).to.be.equal("Team2");
-        expect(playersFound1).to.be.equal("Team2");
+        const twoPlayers = ([playersFound1, playersFound2])
+        expect(twoPlayers).to.be.equal("Team2");
       } catch (err)
       {
         expect(err.errorCode).to.be.equal(403);
