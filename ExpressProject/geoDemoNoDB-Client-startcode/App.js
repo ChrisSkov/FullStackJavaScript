@@ -6,11 +6,13 @@ import {
   StyleSheet,
   TouchableHighlight,
   Alert,
+  TextInput,
 } from "react-native";
 import * as Location from "expo-location";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import Constants from "expo-constants";
 import facade from "./serverFacade";
+import LoginModal from "./components/LoginModal";
 
 const MyButton = ({ txt, onPressButton }) => {
   return (
@@ -28,7 +30,17 @@ export default App = () => {
   const [region, setRegion] = useState(null);
   const [serverIsUp, setServerIsUp] = useState(false);
   const [status, setStatus] = useState("");
+  const [loginInfo, setLoginInfo] = useState({
+    userName: "team 1",
+    password: "secret",
+  });
+  const [loginMode, setLoginMode] = useState(false);
+  const [distance, setDistance] = useState("10000");
   let mapRef = useRef(null);
+
+  const closeModal = () => {
+    setLoginMode(false);
+  };
 
   useEffect(() => {
     getLocationAsync();
@@ -56,14 +68,15 @@ export default App = () => {
       setErrorMessage("Permission to access location was denied");
       return;
     }
-
     let location = await Location.getCurrentPositionAsync({
       enableHighAccuracy: true,
     });
+
     setPosition({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
     });
+
     setRegion({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
@@ -73,10 +86,11 @@ export default App = () => {
   };
 
   /*
-	When a press is done on the map, coordinates (lat,lon) are provided via the event object
-	*/
+  When a press is done on the map, coordinates (lat,lon) are provided via the event object
+  */
   onMapPress = async (event) => {
     //Get location from where user pressed on map, and check it against the server
+
     const coordinate = event.nativeEvent.coordinate;
     const lon = coordinate.longitude;
     const lat = coordinate.latitude;
@@ -90,6 +104,8 @@ export default App = () => {
   };
 
   onCenterGameArea = () => {
+    // (RED) Center map around the gameArea fetched from the backend
+    // Alert.alert("Message", "Should center map around the gameArea");
     //Hardcoded, should be calculated as center of polygon received from server
     const latitude = 55.777055745928664;
     const longitude = 12.55897432565689;
@@ -102,12 +118,14 @@ export default App = () => {
       },
       1000
     );
-    // (RED) Center map around the gameArea fetched from the backend
-    //Alert.alert("Message", "Should center map around the gameArea");
   };
 
   sendRealPosToServer = async () => {
     //Upload users current position to the isuserinarea endpoint and present result
+    // Alert.alert(
+    //   "Message",
+    //   "Should send users location to the 'isuserinarea' endpoint"
+    // );
     const lat = position.latitude;
     const lon = position.longitude;
     try {
@@ -115,23 +133,26 @@ export default App = () => {
       showStatusFromServer(setStatus, status);
     } catch (err) {
       setErrorMessage("Could not get result from server");
-      setServerIsUp(false);
+      setServerIsUp(true);
     }
   };
 
   const info = serverIsUp ? status : " Server is not up";
   return (
-    <View style={{ flex: 1 }}>
-      {region ? (
+    <View style={{ flex: 1, paddingTop: 20 }}>
+      {!region && <Text style={styles.fetching}>.. Fetching data</Text>}
+
+      {/* Add MapView */}
+      {region && (
         <MapView
           ref={mapRef}
           style={{ flex: 14 }}
           onPress={onMapPress}
           mapType="standard"
-          region={region}
+          // region={region}
+          showsUserLocation
           showsCompass
         >
-          <View style={styles.statusBar} />
           {/*App MapView.Polygon to show gameArea*/}
           {serverIsUp && (
             <MapView.Polygon
@@ -144,7 +165,7 @@ export default App = () => {
 
           {/*App MapView.Marker to show users current position*/}
           <MapView.Marker
-            title="Hamad"
+            title="My Position"
             pinColor="blue"
             coordinate={{
               longitude: position.longitude,
@@ -152,25 +173,44 @@ export default App = () => {
             }}
           />
         </MapView>
-      ) : (
-        <Text style={styles.fetching}>Fetching data...</Text>
       )}
 
-      <Text style={{ flex: 1, textAlign: "center", fontWeight: "bold" }}>
-        Your position (lat,long): {position.latitude}, {position.longitude}
-      </Text>
-      <Text style={{ flex: 1, textAlign: "center" }}>{info}</Text>
-
-      <MyButton
-        style={{ flex: 2 }}
-        onPressButton={sendRealPosToServer}
-        txt="Upload real Position"
+      <LoginModal
+        visible={loginMode}
+        closeModal={closeModal}
+        setLoginInfo={setLoginInfo}
+        loginInfo={loginInfo}
       />
 
+      <Text style={{ flex: 1, textAlign: "center", fontWeight: "bold" }}>
+        Your position: {position.latitude}, {position.longitude}
+      </Text>
+      <Text style={{ flex: 1, textAlign: "center" }}>{info}</Text>
+      <Text style={{ flex: 1, textAlign: "center", fontWeight: "bold", color:"red"}}>
+        Info: UserName: {loginInfo.userName}, PassWord: {loginInfo.password}
+      </Text>
+      <Text style={{ flex: 1, textAlign: "center", fontWeight: "bold", color:"red"}}>
+      Distance: {distance}
+      </Text>
+
+      <View style={{ flexDirection: "row" }}>
+        <MyButton
+          style={{ flex: 2 }}
+          onPressButton={sendRealPosToServer}
+          txt="Upload real Position"
+        />
+
+        <MyButton
+          style={{ flex: 2 }}
+          onPressButton={() => onCenterGameArea()}
+          txt="Show Game Area"
+        />
+      </View>
+
       <MyButton
         style={{ flex: 2 }}
-        onPressButton={() => onCenterGameArea()}
-        txt="Show Game Area"
+        onPressButton={() => setLoginMode(true)}
+        txt="Set Login"
       />
     </View>
   );
@@ -191,18 +231,34 @@ const styles = StyleSheet.create({
     fontSize: 35,
     flex: 14,
     flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
     paddingTop: Constants.statusBarHeight,
-    textAlign: "center",
   },
   paragraph: {
     margin: 24,
     fontSize: 18,
     textAlign: "center",
   },
-  statusBar: {
-    backgroundColor: "rgba(0,0,0,0.3)",
-    height: Constants.statusBarHeight,
+  inputContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  input: {
+    borderBottomColor: "black",
+    borderWidth: 1,
+    padding: 10,
+    width: "40%",
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "55%",
+  },
+  button: {
+    width: "40%",
   },
 });
 
