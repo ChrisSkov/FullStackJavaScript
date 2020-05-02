@@ -6,13 +6,29 @@ type Friend{
     firstName: String
     lastName: String
     gender: String
+    age: Int
+    language: String
+    emails: String
+}
+
+
+type Query{
+   getFriend(id: ID): Friend
+
+}
+
+input  FriendInput{
+    id: ID
+    firstName: String! 
+    lastName: String
+    gender: String
+    age: Int
     language: String
     email: String
 }
 
-type Query{
-    friend: Friend
-
+type Mutation{
+    createFriend(input: FriendInput): Friend
 }
 `)
 
