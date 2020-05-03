@@ -25,7 +25,7 @@ enum Gender {
 
 
 type Query{
-   getFriend(id: ID): Friend
+   getOneFriend(id: ID!): Friend
 
 }
 
@@ -47,6 +47,8 @@ input ContactInput {
 
 type Mutation{
     createFriend(input: FriendInput): Friend
+    updateFriend(input: FriendInput): Friend
+    deleteFriend(id: ID!): String
 }
 `;
 const schema = makeExecutableSchema({ typeDefs, resolvers });
