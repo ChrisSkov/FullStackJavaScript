@@ -69,27 +69,27 @@ var root = {
 
 
 
-if (USE_AUTHENTICATION) {
-    router.use(basicAuth)
-}
+// if (USE_AUTHENTICATION) {
+//     router.use(basicAuth)
+// }
 
-// router.use('/', graphqlHTTP({
-//     schema: schema,
-//     rootValue: root,
-//     graphiql: true,
-// }));
+router.use('/', graphqlHTTP({
+    schema: schema,
+    rootValue: root,
+    graphiql: true,
+}));
 
 //Only if we need roles
 //middleware basic auth
-router.use("/", (req: any, res, next) => {
-  if (USE_AUTHENTICATION) {
-    const role = req.role;
-    if (role != "admin") {
-      throw new ApiError("Not Authorized", 403)
-    }
-    next();
-  }
-})
+// router.use("/", (req: any, res, next) => {
+//   if (USE_AUTHENTICATION) {
+//     const role = req.role;
+//     if (role != "admin") {
+//       throw new ApiError("Not Authorized", 403)
+//     }
+//     next();
+//   }
+// })
 
 
 module.exports = router;

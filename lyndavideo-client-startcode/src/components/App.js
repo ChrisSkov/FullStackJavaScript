@@ -16,9 +16,9 @@ import Home from "./Home"
 
 const URI = "http://localhost:8080/graphql"
 
-// const client = new ApolloClient({
-//   uri: URI
-// })
+const client = new ApolloClient({
+  uri: URI
+})
 
 export default function App() {
   return (
