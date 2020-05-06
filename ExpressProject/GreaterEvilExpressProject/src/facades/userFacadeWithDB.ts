@@ -12,15 +12,15 @@ export default class UserFacade {
 
     static async setDatabase(client: mongo.MongoClient) {
         const dbName = process.env.DB_NAME;
-        if(!dbName){
+        if (!dbName) {
             throw new Error("Database name not provided")
         }
         try {
-            if(!client.isConnected()){
-              await client.connect();
+            if (!client.isConnected()) {
+                await client.connect();
             }
-            userCollection =  client.db(dbName).collection("users");
-            await userCollection.createIndex( {userName :1},{unique:true} )
+            userCollection = client.db(dbName).collection("users");
+            await userCollection.createIndex({ userName: 1 }, { unique: true })
             return client.db(dbName);
 
         } catch (err) {
@@ -31,15 +31,15 @@ export default class UserFacade {
     static async addUser(user: IGameUser): Promise<string> {
         const hash = await bryptAsync(user.password);
         let newUser = { ...user, password: hash }
-        try{ 
-        const result = await userCollection.insertOne(newUser);
-        return "User was added";
-        } catch (err){
-            if(err.code === 11000){
-              throw new ApiError("This userName is already taken",400)
+        try {
+            const result = await userCollection.insertOne(newUser);
+            return "User was added";
+        } catch (err) {
+            if (err.code === 11000) {
+                throw new ApiError("This userName is already taken", 400)
             }
             //THis should probably be logged
-            throw new ApiError(err.errmsg,400)
+            throw new ApiError(err.errmsg, 400)
         }
     }
     static async deleteUser(userName: string): Promise<string> {
@@ -50,32 +50,32 @@ export default class UserFacade {
         else throw new ApiError("Requested delete could not be performed", 400)
     }
     //static async getAllUsers(): Promise<Array<IGameUser>> {
-    static async getAllUsers(proj?:object): Promise<Array<any>> {
-            const all = userCollection.find(
-                {},
-                {projection: proj}
-            )
-            return all.toArray();
+    static async getAllUsers(proj?: object): Promise<Array<any>> {
+        const all = userCollection.find(
+            {},
+            { projection: proj }
+        )
+        return all.toArray();
     }
 
-    static async getUser(userName: string,proj?:object): Promise<any> {
+    static async getUser(userName: string, proj?: object): Promise<any> {
         const user = await userCollection.findOne(
             { userName },
             proj
         )
-        if(!user){
-            throw new ApiError("User not found",404);
+        if (!user) {
+            throw new ApiError("User not found", 404);
         }
         return user;
     }
 
     static async checkUser(userName: string, password: string): Promise<boolean> {
         let userPassword = "";
-        try{
-          const user = await UserFacade.getUser(userName);
-          userPassword = user.password;
-        } catch(err){}
-        
+        try {
+            const user = await UserFacade.getUser(userName);
+            userPassword = user.password;
+        } catch (err) { }
+
         const status = await bryptCheckAsync(password, userPassword);
         return status
     }
@@ -88,7 +88,7 @@ async function test() {
     await userCollection.deleteMany({})
     await UserFacade.addUser({ name: "kim", userName: "kim@b.dk", password: "secret", role: "user" })
     await UserFacade.addUser({ name: "ole", userName: "ole@b.dk", password: "secret", role: "user" })
-    
+
     // const all = await UserFacade.getAllUsers();
     // console.log(all)
 
@@ -124,6 +124,6 @@ async function test() {
     //     console.log("hould get here with failded 2", err)
     // }
 
-    
+
 }
 //test();
