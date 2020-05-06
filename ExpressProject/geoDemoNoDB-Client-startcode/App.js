@@ -186,11 +186,25 @@ export default App = () => {
         Your position: {position.latitude}, {position.longitude}
       </Text>
       <Text style={{ flex: 1, textAlign: "center" }}>{info}</Text>
-      <Text style={{ flex: 1, textAlign: "center", fontWeight: "bold", color:"red"}}>
+      <Text
+        style={{
+          flex: 1,
+          textAlign: "center",
+          fontWeight: "bold",
+          color: "red",
+        }}
+      >
         Info: UserName: {loginInfo.userName}, PassWord: {loginInfo.password}
       </Text>
-      <Text style={{ flex: 1, textAlign: "center", fontWeight: "bold", color:"red"}}>
-      Distance: {distance}
+      <Text
+        style={{
+          flex: 1,
+          textAlign: "center",
+          fontWeight: "bold",
+          color: "red",
+        }}
+      >
+        Distance: {distance}
       </Text>
 
       <View style={{ flexDirection: "row" }}>
