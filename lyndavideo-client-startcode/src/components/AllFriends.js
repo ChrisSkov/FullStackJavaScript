@@ -15,14 +15,27 @@ const ALL_FRIENDS = gql`
   }
 }
 `
+const DELETE_FRIEND = gql`
+mutation 
+  deleteFriend($id:ID!) {
+    deleteFriend(id: $id)
+  }
+`
+
 
 export default function All() {
-  const { loading, error, data, networkStatus } = useQuery(ALL_FRIENDS);
+  const { loading, error, data, refetch } = useQuery(ALL_FRIENDS);
   //const { loading, error, data, networkStatus } = useQuery(ALL_FRIENDS, { fetchPolicy: "no-cache" });
   //const { loading, error, data, networkStatus } = useQuery(ALL_FRIENDS, { pollInterval: 15000 });
   if (loading) return (<h3>Loading...</h3>)
   if (error) return <p> {JSON.stringify(error)}</p>
   if (!data) return <p>No Data</p>
+
+
+  const onDeleteFullRefetch = (id) => { }
+  //RED ONLY
+  const onDeleteUpdateCache = (id) => { }
+
 
   return data.allFriends.map(f => {
     const age = f.age ? `, Age: ${f.age}` : null;
