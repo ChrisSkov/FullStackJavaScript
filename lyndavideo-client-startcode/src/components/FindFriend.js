@@ -32,10 +32,13 @@ export default function FindFriend() {
     <div>
       ID:<input type="txt" value={id} onChange={e => { setId(e.target.value) }} />
       &nbsp; <button onClick={fetchFriend}>Find Friend</button>
-      <br/>
-      <br/>
+      <br />
+      <br />
 
-      <h2>Fetch a friend using the provided id</h2>
+      {loading && <h2>Loading...</h2>}
+      {error && <h2>Error while fetching friend...</h2>}
+      {data && <AddFriend initialFriend={data.getOneFriend} />}
 
+      
     </div>)
 }
