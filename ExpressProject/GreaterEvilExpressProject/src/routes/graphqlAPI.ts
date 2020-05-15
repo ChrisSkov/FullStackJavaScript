@@ -12,8 +12,8 @@ import GameUser from "../interfaces/GameUser";
 const USE_AUTHENTICATION = true;
 
 (async function setupDB() {
-    const client = await setup()
-    userFacade.setDatabase(client)
+  const client = await setup()
+  userFacade.setDatabase(client)
 })()
 const schema = buildSchema(`
   type User {
@@ -27,43 +27,55 @@ const schema = buildSchema(`
     userName: String
     password: String
   }
+
+input FindUser{
+  userName: String
+}
   
   type Query {
     users : [User]!
   }
   type Mutation {
     createUser(input: UserInput): String
+    deleteUser(input: FindUser!): String
   }
 `
 )
 // The root provides a resolver function for each API endpoint
 var root = {
-    users: async () => {
-        const users = await userFacade.getAllUsers();
-        const usersDTO = users.map((user) => {
-            const { name, userName, role } = user;
-            return { name, userName, role }
-        })
-        return usersDTO;
-    },
+  users: async () => {
+    const users = await userFacade.getAllUsers();
+    const usersDTO = users.map((user) => {
+      const { name, userName, role } = user;
+      return { name, userName, role }
+    })
+    return usersDTO;
+  },
 
-    createUser: async (inp: any) => {
-        const { input } = inp;
-        try {
-            const newUser = {
-                name: input.name,
-                userName: input.userName,
-                password: input.password,
-                role: "user"
-            }
+  createUser: async (inp: any) => {
+    const { input } = inp;
+    try {
+      const newUser = {
+        name: input.name,
+        userName: input.userName,
+        password: input.password,
+        role: "user"
+      }
 
-            const status = await userFacade.addUser(newUser)
-            return status;
+      const status = await userFacade.addUser(newUser)
+      return status;
 
-        } catch (err) {
-            throw err;
-        }
+    } catch (err) {
+      throw err;
     }
+  },
+
+  deleteUser: async (userName: any) => {
+    const { input } = userName;
+    const status = await userFacade.deleteUser(input.userName);
+    return status
+  }
+
 };
 
 
@@ -74,9 +86,9 @@ var root = {
 // }
 
 router.use('/', graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true,
+  schema: schema,
+  rootValue: root,
+  graphiql: true,
 }));
 
 //Only if we need roles
