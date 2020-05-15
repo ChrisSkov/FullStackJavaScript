@@ -7,64 +7,157 @@ import setup from "../config/setupDB"
 import graphqlHTTP from "express-graphql";
 import { buildSchema } from "graphql";
 import GameUser from "../interfaces/GameUser";
+import mongoose from "mongoose";
+import { Friends } from "../data/dbConnectors"
+
 
 
 const USE_AUTHENTICATION = true;
 
 (async function setupDB() {
-    const client = await setup()
-    userFacade.setDatabase(client)
+  const client = await setup()
+  userFacade.setDatabase(client)
 })()
 const schema = buildSchema(`
+
   type User {
     name: String
     userName: String
     role: String
     password: String
   }
+
   input UserInput {
     name: String
     userName: String
     password: String
   }
-  
+
+  type Friend {
+    id: ID
+    firstName: String
+    lastName: String
+    language: String
+    gender : Gender
+    age: Int
+    email: String
+    contacts: [Contact]
+  }
+
+  type Contact {
+    firstName: String
+    lastName: String
+  }
+
+  enum Gender {
+    MALE
+    FEMALE
+    OTHER
+  }
+
   type Query {
     users : [User]!
+    getOneFriend(id: ID!): Friend
+    allFriends: [Friend]!
+  } 
+ 
+  
+
+  input FriendInput {
+    id: ID
+    firstName: String!
+    lastName: String
+    language: String
+    gender : Gender
+    age: Int
+    email: String
+    contacts: [ContactInput]
   }
+
+  input ContactInput {
+    firstName: String
+    lastName: String
+  }
+
   type Mutation {
     createUser(input: UserInput): String
+    createFriend(input: FriendInput): Friend
+    updateFriend(input: FriendInput): Friend
+    deleteFriend(id:ID!):String
   }
+  
+
+  
 `
 )
 // The root provides a resolver function for each API endpoint
 var root = {
-    users: async () => {
-        const users = await userFacade.getAllUsers();
-        const usersDTO = users.map((user) => {
-            const { name, userName, role } = user;
-            return { name, userName, role }
-        })
-        return usersDTO;
-    },
+  users: async () => {
+    const users = await userFacade.getAllUsers();
+    const usersDTO = users.map((user) => {
+      const { name, userName, role } = user;
+      return { name, userName, role }
+    })
+    return usersDTO;
+  },
 
-    createUser: async (inp: any) => {
-        const { input } = inp;
-        try {
-            const newUser = {
-                name: input.name,
-                userName: input.userName,
-                password: input.password,
-                role: "user"
-            }
+  createUser: async (inp: any) => {
+    const { input } = inp;
+    try {
+      const newUser = {
+        name: input.name,
+        userName: input.userName,
+        password: input.password,
+        role: "user"
+      }
 
-            const status = await userFacade.addUser(newUser)
-            return status;
+      const status = await userFacade.addUser(newUser)
+      return status;
 
-        } catch (err) {
-            throw err;
-        }
+    } catch (err) {
+      throw err;
     }
-};
+  },
+
+  Query: {
+    getOneFriend: (root, { id }) => {
+      return Friends.findById(id);
+
+    },
+    allFriends: () => {
+      return Friends.find({})
+    }
+  },
+  Mutation: {
+    createFriend: (root, { input }) => {
+      const newFriend = new Friends({
+        firstName: input.firstName,
+        lastName: input.firstName,
+        gender: input.gender,
+        age: input.age,
+        language: input.language,
+        email: input.email,
+        contacts: input.contacts
+      })
+      newFriend.id = newFriend._id;
+      return newFriend.save();
+    },
+    updateFriend: (root, { input }) => {
+      return Friends.findOneAndUpdate({ _id: input.id }, input, { new: true });
+    },
+    deleteFriend: async (root, { id }) => {
+      try {
+        await Friends.findOneAndRemove({ _id: id })
+        return `Friend with id: ${id} deleted`
+      } catch (err) {
+        return `Failed to delete friend with id: ${id} deleted`
+      }
+
+    }//end of deletefriend
+
+  }//end of mutation
+
+};//end of resolvers
 
 
 
@@ -74,9 +167,9 @@ var root = {
 // }
 
 router.use('/', graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true,
+  schema: schema,
+  rootValue: root,
+  graphiql: true,
 }));
 
 //Only if we need roles

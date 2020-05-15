@@ -3,6 +3,7 @@ import express from "express";
 import path from "path";
 import { ApiError } from "./errors/apiError";
 import cors from "cors";
+import graphqlHTTP from "express-graphql"
 
 const app = express();
 
@@ -23,7 +24,11 @@ let graphqlAPIRouter = require("./routes/graphqlAPI");
 app.use("/api/users", userAPIRouter);
 app.use("/gameapi", gameAPIRouter);
 app.use("/graphql", graphqlAPIRouter);
-
+// app.use("/graphql", graphqlHTTP({
+//   schema: schema,
+//   //rootValue: root,
+//   graphiql: true
+// }))
 app.get("/api/dummy", (req, res) => {
   res.json({ msg: "Hello" });
 });
