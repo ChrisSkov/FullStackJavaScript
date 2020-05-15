@@ -86,7 +86,16 @@ export default class UserFacade {
         }
         return user;
     }
-
+    static async updateUser(userName: string): Promise<any> {
+        const user = await userCollection.findOneAndUpdate(
+            { userName },
+            {new: true}
+        )
+        if (!user) {
+            throw new ApiError("User not found", 404);
+        }
+        return user;
+    }
     static async checkUser(userName: string, password: string): Promise<boolean> {
         let userPassword = "";
         try {

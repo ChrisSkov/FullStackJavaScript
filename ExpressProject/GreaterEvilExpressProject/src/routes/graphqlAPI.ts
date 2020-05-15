@@ -33,28 +33,10 @@ const schema = buildSchema(`
     password: String
   }
 
-  type Friend {
-    id: ID
-    firstName: String
-    lastName: String
-    language: String
-    gender : Gender
-    age: Int
-    email: String
-    contacts: [Contact]
-  }
-
-  type Contact {
-    firstName: String
-    lastName: String
-  }
-
-  enum Gender {
-    MALE
-    FEMALE
-    OTHER
-  }
-
+input FindUser{
+  userName: String
+}
+  
   type Query {
     users : [User]!
     getOneFriend(id: ID!): Friend
@@ -81,9 +63,7 @@ const schema = buildSchema(`
 
   type Mutation {
     createUser(input: UserInput): String
-    createFriend(input: FriendInput): Friend
-    updateFriend(input: FriendInput): Friend
-    deleteFriend(id:ID!):String
+    deleteUser(input: FindUser!): String
   }
   
 
@@ -118,6 +98,14 @@ var root = {
       throw err;
     }
   },
+
+  deleteUser: async (userName: any) => {
+    const { input } = userName;
+    const status = await userFacade.deleteUser(input.userName);
+    return status
+  }
+
+};
 
   Query: {
     getOneFriend: (root, { id }) => {
