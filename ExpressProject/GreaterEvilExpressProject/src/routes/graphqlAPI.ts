@@ -7,7 +7,6 @@ import setup from "../config/setupDB"
 import graphqlHTTP from "express-graphql";
 import { buildSchema } from "graphql";
 import GameUser from "../interfaces/GameUser";
-import mongoose from "mongoose";
 import { Friends } from "../data/dbConnectors"
 
 
@@ -106,47 +105,6 @@ var root = {
   }
 
 };
-
-  Query: {
-    getOneFriend: (root, { id }) => {
-      return Friends.findById(id);
-
-    },
-    allFriends: () => {
-      return Friends.find({})
-    }
-  },
-  Mutation: {
-    createFriend: (root, { input }) => {
-      const newFriend = new Friends({
-        firstName: input.firstName,
-        lastName: input.firstName,
-        gender: input.gender,
-        age: input.age,
-        language: input.language,
-        email: input.email,
-        contacts: input.contacts
-      })
-      newFriend.id = newFriend._id;
-      return newFriend.save();
-    },
-    updateFriend: (root, { input }) => {
-      return Friends.findOneAndUpdate({ _id: input.id }, input, { new: true });
-    },
-    deleteFriend: async (root, { id }) => {
-      try {
-        await Friends.findOneAndRemove({ _id: id })
-        return `Friend with id: ${id} deleted`
-      } catch (err) {
-        return `Failed to delete friend with id: ${id} deleted`
-      }
-
-    }//end of deletefriend
-
-  }//end of mutation
-
-};//end of resolvers
-
 
 
 
