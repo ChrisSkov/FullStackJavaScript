@@ -27,23 +27,7 @@ export default class UserFacade {
             console.error("Could not create connect", err)
         }
     }
-    static async setDatabaseFriend(client: mongo.MongoClient) {
-        const dbName = process.env.DB_NAME;
-        if (!dbName) {
-            throw new Error("Database name not provided")
-        }
-        try {
-            if (!client.isConnected()) {
-                await client.connect();
-            }
-            Friend = client.db(dbName).collection("Friend");
-            await Friend.createIndex({ userName: 1 }, { unique: true })
-            return client.db(dbName);
 
-        } catch (err) {
-            console.error("Could not create connect", err)
-        }
-    }
 
     static async addUser(user: IGameUser): Promise<string> {
         const hash = await bryptAsync(user.password);
@@ -101,7 +85,6 @@ async function test() {
     console.log("testing")
     const client = await setup();
     await UserFacade.setDatabase(client)
-    await UserFacade.setDatabaseFriend(client)
     await userCollection.deleteMany({})
     await UserFacade.addUser({ name: "kim", userName: "kim@b.dk", password: "secret", role: "user" })
     await UserFacade.addUser({ name: "ole", userName: "ole@b.dk", password: "secret", role: "user" })

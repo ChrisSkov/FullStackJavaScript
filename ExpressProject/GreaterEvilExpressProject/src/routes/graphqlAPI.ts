@@ -7,7 +7,6 @@ import setup from "../config/setupDB"
 import graphqlHTTP from "express-graphql";
 import { buildSchema } from "graphql";
 import GameUser from "../interfaces/GameUser";
-import { Friends } from "../data/dbConnectors"
 
 
 
@@ -38,27 +37,8 @@ input FindUser{
   
   type Query {
     users : [User]!
-    getOneFriend(id: ID!): Friend
-    allFriends: [Friend]!
   } 
  
-  
-
-  input FriendInput {
-    id: ID
-    firstName: String!
-    lastName: String
-    language: String
-    gender : Gender
-    age: Int
-    email: String
-    contacts: [ContactInput]
-  }
-
-  input ContactInput {
-    firstName: String
-    lastName: String
-  }
 
   type Mutation {
     createUser(input: UserInput): String
