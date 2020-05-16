@@ -1,4 +1,5 @@
-Participants in this project: 
+Participants in this project:
+
 Hamad Shah - cph-ss451@cphbusiness.dk 
 
 Jacob Jabr - cph-jj433@cphbusiness.dk
