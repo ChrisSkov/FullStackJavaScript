@@ -3,10 +3,10 @@ import graphqlHTTP from "express-graphql"
 import {schema} from "./data/schema"
 //import schema from "./schemaOriginal"
 import cors from "cors";
-app.use(cors())
 
 //import resolvers from "./resolversOriginal"
 const app = express();
+app.use(cors())
 
 app.get("/", (req, res) => {
   res.send("GraphQL is amazing")
